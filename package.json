@@ -4,18 +4,33 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.0.0",
     "mongoos": "^0.0.1-security",
-    "mongoose": "^9.0.1"
+    "mongoose": "^9.1.1",
+    "uuid": "^13.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rafikamaulid123-ship-it/p10-oauth2-api-key-230104040055.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rafikamaulid123-ship-it/p10-oauth2-api-key-230104040055/issues"
+  },
+  "homepage": "https://github.com/rafikamaulid123-ship-it/p10-oauth2-api-key-230104040055#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.11"
   }
 }

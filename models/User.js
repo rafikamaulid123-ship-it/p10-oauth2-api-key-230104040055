@@ -7,20 +7,16 @@ const userSchema = new mongoose.Schema({
     role: { type: String, enum: ['admin', 'user'], default: 'user' }
 }, { timestamps: true });
 
-// --- Mongoose Pre-save Hook: Hashing Password ---
+// Pre-save Hook: Hashing Password
 userSchema.pre('save', async function() {
-    // 1. Cek apakah field password diubah/baru
-    if (!this.isModified('password')) {
-        return;
-    }
-    // 2. Lakukan Hashing
+    if (!this.isModified('password')) return;
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
 });
 
-// --- Method Instance: Membandingkan Password Saat Login ---
+// Method: Bandingkan Password
 userSchema.methods.matchPassword = async function(enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
 
-module.exports = mongoose.model('User', userSchema);    
+module.exports = mongoose.model('User', userSchema);
