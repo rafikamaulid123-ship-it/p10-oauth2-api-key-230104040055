@@ -1,8 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server'); // Import DB Memory
-const bcrypt = require('bcryptjs'); // Butuh buat seeding user manual
+const { MongoMemoryServer } = require('mongodb-memory-server');
+// const bcrypt = require('bcryptjs'); // HAPUS/KOMENTAR INI (Tidak butuh hash manual lagi)
 
 // Import Models
 const User = require('./models/User');
@@ -16,7 +16,9 @@ const PORT = process.env.PORT || 3000;
 const productRoutes = require('./routes/productRoutes');
 const authRoutes = require('./routes/authRoutes');
 
+// Middleware Body Parser (PENTING)
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // --- DATA DUMMY (SEEDING) ---
 const seedData = async () => {
@@ -25,14 +27,11 @@ const seedData = async () => {
 
     console.log('🌱 Sedang mengisi data awal (Seeding)...');
 
-    // 1. Buat Users
-    const salt = await bcrypt.genSalt(10);
-    const adminPass = await bcrypt.hash('password123', salt);
-    const userPass = await bcrypt.hash('userpass', salt);
-
+    // 1. Buat Users (LANGSUNG PASSWORD ASLI - Biar User Model yang nge-hash)
+    // Jangan di-hash manual pakai bcrypt di sini!
     await User.create([
-        { username: 'admin', password: adminPass, role: 'admin' },
-        { username: 'userbiasa', password: userPass, role: 'user' }
+        { username: 'admin', password: 'password123', role: 'admin' },
+        { username: 'userbiasa', password: 'userpass', role: 'user' }
     ]);
 
     // 2. Buat API Keys
@@ -54,13 +53,13 @@ const seedData = async () => {
 // --- STARTUP LOGIC ---
 const startServer = async () => {
     try {
-        // 1. Jalankan MongoDB Memory Server (Magic happens here!)
+        // 1. Jalankan MongoDB Memory Server
         const mongod = await MongoMemoryServer.create();
-        const uri = mongod.getUri(); // Ambil link koneksi otomatis
+        const uri = mongod.getUri();
         
-        // 2. Konek Mongoose ke Memory Server
+        // 2. Konek Mongoose
         await mongoose.connect(uri);
-        console.log('✅ Berhasil Konek ke MongoDB Server!');
+        console.log('✅ Berhasil Konek ke MongoDB Memory Server!');
 
         // 3. Isi Data
         await seedData();
@@ -74,6 +73,7 @@ const startServer = async () => {
         app.listen(PORT, () => {
             console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
             console.log(`🔑 Gunakan API Key: PRACTICUM_API_KEY_A_1234567890`);
+            console.log(`👤 Admin: admin / password123`);
         });
 
     } catch (err) {

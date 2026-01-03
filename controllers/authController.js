@@ -2,6 +2,7 @@ const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
 
 const authUser = async (req, res) => {
+    console.log("👉 DATA YANG DITERIMA SERVER:", req.body);
     const { username, password } = req.body;
     const user = await User.findOne({ username });
 
