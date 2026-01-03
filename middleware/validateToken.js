@@ -1,22 +1,32 @@
-const ApiKey = require('../models/ApiKey');
+const jwt = require('jsonwebtoken');
 
-const validateApiKey = async (req, res, next) => {
-    const apiKey = req.header('x-api-key');
+const validateToken = (req, res, next) => {
+    // --- CCTV DEBUGGING (Tambahkan ini) ---
+    console.log("👉 Header Auth Diterima:", req.headers.authorization);
+    // --------------------------------------
 
-    if (!apiKey) {
-        return res.status(401).json({ message: 'Akses Ditolak: API Key tidak ditemukan.' });
-    }
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        try {
+            const token = req.headers.authorization.split(' ')[1];
+            
+            // Cek token yang dipotong
+            console.log("👉 Token Extracted:", token);
 
-    try {
-        const existingKey = await ApiKey.findOne({ key: apiKey, status: 'active' });
-        if (!existingKey) {
-            return res.status(401).json({ message: 'Akses Ditolak: API Key tidak valid.' });
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            
+            // Cek hasil decode
+            console.log("👉 Hasil Decode:", decoded);
+
+            req.user = { id: decoded.id, role: decoded.role };
+            next();
+        } catch (error) {
+            console.error("❌ Error Verifikasi:", error.message); // Biar tau errornya apa
+            res.status(403).json({ message: 'Akses Ditolak: Token tidak valid/expired.' });
         }
-        req.apiKey = existingKey;
-        next();
-    } catch (error) {
-        res.status(500).json({ message: 'Internal Server Error' });
+    } else {
+        console.log("❌ Header Authorization Kosong atau Salah Format");
+        res.status(403).json({ message: 'Akses Ditolak: Token tidak ditemukan (Wajib Bearer).' });
     }
 };
 
-module.exports = validateApiKey;
+module.exports = validateToken;
